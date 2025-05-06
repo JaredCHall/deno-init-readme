@@ -1,0 +1,33 @@
+{
+  "name": "@jaredhall/init-readme",
+  "version": "0.0.1",
+  "exports": "./mod.ts",
+  "tasks": {
+    "make:readme": "deno run --allow-write ./mod.ts",
+    "test": "deno test",
+    "check": "deno fmt && deno lint && deno task test"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "fmt": {
+    "useTabs": true,
+    "lineWidth": 120,
+    "indentWidth": 4,
+    "semiColons": false,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": [
+      "src/*.ts",
+      "tests/*.ts"
+    ]
+  },
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "mod.ts",
+      "src/**/*.ts"
+    ]
+  }
+}
