@@ -1,0 +1,10 @@
+## [0.0.1] - 2025-05-05
+
+- Initial release of `deno-init-readme`, a tool for scaffolding `README.md` files for Deno modules.
+- Interactive CLI for generating project overviews and usage instructions.
+- Support for optional "Advanced Usage" section via prompt.
+- Programmatic API via `DocumentMaker` class.
+- Built-in JSR and GitHub Actions badges for README.
+- Modular design with `DocumentSection`, `DocumentBadge`, and `DocumentMaker`.
+- Test suite for all core components.
+- GitHub Actions for CI (`lint`, `fmt`, `test`) and JSR publishing workflow.

@@ -1,5 +1,5 @@
-import { assertEquals } from 'jsr:@std/assert'
-import { stub } from 'jsr:@std/testing/mock'
+import { assertEquals } from '@std/assert'
+import { stub } from '@testing/mock'
 
 // Dynamically import to ensure we don't trigger import.meta.main logic
 const cliModule = await import('../src/generate-readme-from-user-input.ts')
