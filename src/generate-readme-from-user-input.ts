@@ -1,6 +1,7 @@
 import { DocumentMaker } from './DocumentMaker.ts'
 import { DocumentBadge } from './DocumentBadge.ts'
 
+/** Generates a README.md file from user input */
 export async function generateReadmeFromUserInput(): Promise<void> {
 	const name = prompt('Project name:')
 	const desc = prompt('Description?')

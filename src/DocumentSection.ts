@@ -7,6 +7,7 @@ export class DocumentSection {
 		this.content = (content ?? '').trim()
 	}
 
+	/** Checks if the DocumentSection is empty */
 	isEmpty(): boolean {
 		return this.content.length === 0
 	}

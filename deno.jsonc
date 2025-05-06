@@ -1,6 +1,6 @@
 {
   "name": "@jaredhall/init-readme",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "exports": "./mod.ts",
   "tasks": {
     "make:readme": "deno run --allow-write ./mod.ts",
