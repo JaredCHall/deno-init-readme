@@ -1,6 +1,5 @@
-import { DocumentMaker } from './DocumentMaker.ts'
-import { DocumentSection } from "./DocumentSection.ts";
 import { makeBadges, makeModuleSettings, parseDenoConfig, fileExists } from './helpers.ts'
+import { generateReadmeMarkdown } from "./core.ts";
 
 const USAGE = `Usage:
   deno run --allow-read[ --allow-write] mod.ts [options]
@@ -17,27 +16,20 @@ Options:
 
 /** Generates a README.md file from user input */
 export async function generateReadme(): Promise<boolean> {
-	if (Deno.args.includes('--help')) {
+	const args = new Set(Deno.args)
+	const dryRun = args.has('--dry-run')
+	const force = args.has('--force')
+	const help = args.has('--help')
+
+	if (help) {
 		console.log(USAGE)
 		return false
 	}
 
-	const dryRun = Deno.args.includes('--dry-run')
-	const force = Deno.args.includes('--force')
-
 	const config = await parseDenoConfig()
 	const settings = makeModuleSettings(config)
 	const badges = makeBadges(settings)
-	const maker = new DocumentMaker()
-
-	const markdown = [
-		maker.makeTitleSection(settings.jsrScope + '/' + settings.jsrModule, settings.description ?? "", badges),
-		maker.makeUsageSection(`deno run jsr:${settings.name}`),
-		maker.makeAdvancedUsageSection(`import { YourModule } from "jsr:${settings.name}";\n\nnew YourModule.engage();`)
-	].reduce(
-			(section, carry) => section.concat(carry),
-			new DocumentSection('')
-	).toString()
+	const markdown = generateReadmeMarkdown(settings, badges)
 
 	if (dryRun) {
 		console.log(markdown)

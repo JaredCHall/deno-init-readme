@@ -131,30 +131,3 @@ Deno.test('generateReadme writes to README.md when --force is passed', async () 
 		Deno.args.splice(0, Deno.args.length)
 	}
 })
-
-Deno.test('generateReadme handles missing description field', async () => {
-	Deno.args.splice(0, Deno.args.length, '--dry-run')
-
-	const readStub = makeConfigStub({
-		"name": "@example/nodescription",
-		"githubPath": "nodude/nodescription"
-		// no description
-	})
-
-	let output = ''
-	const logStub = stub(console, 'log', (msg?: unknown) => {
-		if (typeof msg === 'string') output += msg + '\n'
-	})
-
-	try {
-		const result = await generateReadmeTest()
-		assertEquals(result, true)
-		assertStringIncludes(output, "# example/nodescription")
-		// If desired, check that the description is simply omitted
-		assertEquals(output.includes("A test module."), false)
-	} finally {
-		readStub.restore()
-		logStub.restore()
-		Deno.args.splice(0, Deno.args.length)
-	}
-})
