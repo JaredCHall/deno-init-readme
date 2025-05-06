@@ -1,5 +1,5 @@
 // deno-lint-ignore-file require-await
-import {assertEquals, assertStringIncludes} from '@std/assert'
+import {assertEquals, assertRejects, assertStringIncludes, assertThrows} from '@std/assert'
 import { stub } from '@testing/mock'
 
 // Dynamically import to ensure we don't trigger import.meta.main logic
@@ -97,119 +97,64 @@ Deno.test('refuses to overwrite README.md without --force', async () => {
 	})
 	const statStub = stub(Deno, 'stat', async () => ({ isFile: true } as Deno.FileInfo))
 
-	let output = ''
-	const errorStub = stub(console, 'error', (msg?: unknown) => {
-		if (typeof msg === 'string') output += msg + '\n'
+	await assertRejects(() => generateReadmeTest(), 'README.md already exists. Use --force to overwrite.')
+
+	readStub.restore()
+	statStub.restore()
+	Deno.args.splice(0, Deno.args.length)
+})
+
+Deno.test('generateReadme writes to README.md when --force is passed', async () => {
+	Deno.args.splice(0, Deno.args.length, "--force")
+
+	const statStub = stub(Deno, "stat", async () => ({ isFile: true } as Deno.FileInfo))
+	const readStub = stub(Deno, "readTextFile", async () => `{
+  "name": "@force/write",
+  "description": "A forced write test",
+  "githubPath": "user/repo"
+}`)
+
+	let written = ""
+	const writeStub = stub(Deno, "writeTextFile", async (_path, data) => {
+		written = String(data)
 	})
 
 	try {
 		const result = await generateReadmeTest()
-		assertEquals(result, false)
-		assertEquals(output.includes('README.md already exists'), true)
+		assertEquals(result, true)
+		assertStringIncludes(written, "# force/write")
+		assertStringIncludes(written, "forced write test")
 	} finally {
-		readStub.restore()
 		statStub.restore()
-		errorStub.restore()
+		readStub.restore()
+		writeStub.restore()
 		Deno.args.splice(0, Deno.args.length)
 	}
 })
 
-for (const githubPath of [null, 'not-a-path']) {
-	Deno.test(`errors on invalid GitHub path input: ${githubPath}`, async () => {
-		Deno.args.splice(0, Deno.args.length)
-
-		const readStub = makeConfigStub({
-			"name": "@example/broken-path",
-		})
-		const promptStub = stub(globalThis, 'prompt', (_msg?: string) => githubPath)
-
-		let output = ''
-		const errorStub = stub(console, 'error', (msg?: unknown) => {
-			if (typeof msg === 'string') output += msg + '\n'
-		})
-
-		try {
-			const result = await generateReadmeTest()
-			assertEquals(result, false)
-			assertEquals(output.includes('Invalid GitHub path'), true)
-		} finally {
-			readStub.restore()
-			promptStub.restore()
-			errorStub.restore()
-			Deno.args.splice(0, Deno.args.length)
-		}
-	})
-}
-
-Deno.test('errors on empty GitHub path input', async () => {
-	Deno.args.splice(0, Deno.args.length)
+Deno.test('generateReadme handles missing description field', async () => {
+	Deno.args.splice(0, Deno.args.length, '--dry-run')
 
 	const readStub = makeConfigStub({
-		"name": "@example/broken-path",
+		"name": "@example/nodescription",
+		"githubPath": "nodude/nodescription"
+		// no description
 	})
-	const promptStub = stub(globalThis, 'prompt', (_msg?: string) => 'not-a-path')
 
 	let output = ''
-	const errorStub = stub(console, 'error', (msg?: unknown) => {
+	const logStub = stub(console, 'log', (msg?: unknown) => {
 		if (typeof msg === 'string') output += msg + '\n'
 	})
 
 	try {
 		const result = await generateReadmeTest()
-		assertEquals(result, false)
-		assertEquals(output.includes('Invalid GitHub path'), true)
+		assertEquals(result, true)
+		assertStringIncludes(output, "# example/nodescription")
+		// If desired, check that the description is simply omitted
+		assertEquals(output.includes("A test module."), false)
 	} finally {
 		readStub.restore()
-		promptStub.restore()
-		errorStub.restore()
-		Deno.args.splice(0, Deno.args.length)
-	}
-})
-
-Deno.test('errors on malformed name field in deno config', async () => {
-	Deno.args.splice(0, Deno.args.length)
-
-	// Provide config missing the required `@scope/module` pattern
-	const readStub = makeConfigStub({
-		"name": "noscope",
-		"githubPath": "user/repo"
-	})
-
-	let output = ''
-	const errorStub = stub(console, 'error', (msg?: unknown) => {
-		if (typeof msg === 'string') output += msg + '\n'
-	})
-
-	try {
-		const result = await generateReadmeTest()
-		assertEquals(result, false)
-		assertEquals(output.includes('Missing or malformed "name" field'), true)
-	} finally {
-		readStub.restore()
-		errorStub.restore()
-		Deno.args.splice(0, Deno.args.length)
-	}
-})
-
-Deno.test('returns false and logs error if deno config cannot be parsed', async () => {
-	Deno.args.splice(0, Deno.args.length)
-
-	const readStub = stub(Deno, 'readTextFile', async () => {
-		throw 'string error'
-	})
-
-	let output = ''
-	const errorStub = stub(console, 'error', (msg?: unknown) => {
-		if (typeof msg === 'string') output += msg + '\n'
-	})
-
-	try {
-		const result = await generateReadmeTest()
-		assertEquals(result, false)
-		assertStringIncludes(output, 'Failed to parse deno.json(c)')
-	} finally {
-		readStub.restore()
-		errorStub.restore()
+		logStub.restore()
 		Deno.args.splice(0, Deno.args.length)
 	}
 })

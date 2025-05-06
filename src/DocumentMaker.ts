@@ -6,10 +6,9 @@ export class DocumentMaker {
 	/** makes the title section of a README */
 	makeTitleSection(projectName: string, description: string, badges: DocumentBadge[] = []): DocumentSection {
 		const titleLine = `# ${projectName}`
-		const desc = description ?? ''
 		const badgeLine = badges.map((b) => b.toMarkdown()).join('\n')
 
-		const content = [titleLine, badgeLine, desc]
+		const content = [titleLine, badgeLine, description]
 			.filter((part) => part.trim().length > 0)
 			.join('\n\n')
 
