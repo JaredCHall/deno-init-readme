@@ -29,7 +29,7 @@ export class DocumentMaker {
 			sections.push(this.makeUsageSection('deno run jsr:@your/module'))
 		}
 		if (this.props.hasAdvancedUsage) {
-			sections.push(this.makeAdvancedUsageSection('deno run jsr:@your/module --with-adv-option'))
+			sections.push(this.makeAdvancedUsageSection(`import { YourModule } from "jsr:@your/module";\n\nnew YourModule.engage();`))
 		}
 
 		return sections.reduce((acc, section) => acc.concat(section), new DocumentSection('')).toString()
@@ -41,9 +41,9 @@ export class DocumentMaker {
 
 		const titleLine = `# ${projectName}`
 		const desc = projectDescription ?? ''
-		const badgeLine = badges.map((b) => b.toMarkdown()).join(' ')
+		const badgeLine = badges.map((b) => b.toMarkdown()).join('\n')
 
-		const content = [titleLine, desc, badgeLine]
+		const content = [titleLine, badgeLine, desc]
 			.filter((part) => part.trim().length > 0)
 			.join('\n\n')
 
@@ -51,10 +51,10 @@ export class DocumentMaker {
 	}
 	/** makes the usage section of a README */
 	makeUsageSection(example: string): DocumentSection {
-		return new DocumentSection(`# Usage\n\n\`\`\`bash\n${example}\n\`\`\``)
+		return new DocumentSection(`## Usage\n\n\`\`\`bash\n${example}\n\`\`\``)
 	}
 	/** makes the advanced usage section of a README */
 	makeAdvancedUsageSection(example: string): DocumentSection {
-		return new DocumentSection(`# Advanced Usage\n\n\`\`\`bash\n${example}\n\`\`\``)
+		return new DocumentSection(`## Advanced Usage\n\n\`\`\`typescript\n${example}\n\`\`\``)
 	}
 }

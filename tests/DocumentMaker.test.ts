@@ -18,20 +18,23 @@ Deno.test('DocumentMaker: full document with all sections', () => {
 		output,
 		`# my-cool-module
 
+[![CI](https://example.com/ci.svg)](https://ci.example.com)
+![Coverage](https://example.com/coverage.svg)
+
 This is a great module!
 
-[![CI](https://example.com/ci.svg)](https://ci.example.com) ![Coverage](https://example.com/coverage.svg)
-
-# Usage
+## Usage
 
 \`\`\`bash
 deno run jsr:@your/module
 \`\`\`
 
-# Advanced Usage
+## Advanced Usage
 
-\`\`\`bash
-deno run jsr:@your/module --with-adv-option
+\`\`\`typescript
+import { YourModule } from "jsr:@your/module";
+
+new YourModule.engage();
 \`\`\``,
 	)
 })
@@ -55,16 +58,18 @@ Deno.test('DocumentMaker: usage and advanced usage without title', () => {
 	const output = doc.makeDoc()
 	assertEquals(
 		output,
-		`# Usage
+		`## Usage
 
 \`\`\`bash
 deno run jsr:@your/module
 \`\`\`
 
-# Advanced Usage
+## Advanced Usage
 
-\`\`\`bash
-deno run jsr:@your/module --with-adv-option
+\`\`\`typescript
+import { YourModule } from "jsr:@your/module";
+
+new YourModule.engage();
 \`\`\``,
 	)
 })
