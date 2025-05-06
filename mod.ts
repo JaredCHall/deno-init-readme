@@ -1,11 +1,17 @@
 export { DocumentSection } from "./src/DocumentSection.ts";
 export { DocumentBadge } from "./src/DocumentBadge.ts";
-export { DocumentMaker, type DocumentProperties } from "./src/DocumentMaker.ts";
+export { DocumentMaker } from "./src/DocumentMaker.ts";
 
 // CLI entry point
 if (import.meta.main) {
-  const { generateReadmeFromUserInput } = await import("./src/generate-readme-from-user-input.ts");
-  await generateReadmeFromUserInput()
+  const { generateReadme } = await import("./src/generate-readme.ts");
 
-  Deno.exit(0);
+  try {
+    await generateReadme();
+    console.log('%c✅ README.md generated.', 'color:limegreen');
+    Deno.exit(0);
+  } catch (err) {
+    console.error('%c❌ %s', 'color:indianred', err instanceof Error ? err.message : String(err));
+    Deno.exit(1);
+  }
 }

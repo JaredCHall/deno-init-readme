@@ -1,46 +1,12 @@
 import { DocumentSection } from './DocumentSection.ts'
 import type { DocumentBadge } from './DocumentBadge.ts'
 
-/** Properties for the DocumentMaker constructor */
-export interface DocumentProperties {
-	projectName?: string
-	projectDescription?: string
-	badges?: DocumentBadge[]
-	hasTitle?: boolean
-	hasUsage?: boolean
-	hasAdvancedUsage?: boolean
-}
 /** Creates a README document */
 export class DocumentMaker {
-	/** Creates a new DocumentMaker */
-	constructor(private props: DocumentProperties) {
-		this.props.hasTitle ??= true
-		this.props.hasUsage ??= true
-		this.props.hasAdvancedUsage ??= true
-	}
-	/** Creates a README document */
-	makeDoc(): string {
-		const sections: DocumentSection[] = []
-
-		if (this.props.hasTitle) {
-			sections.push(this.makeTitleSection())
-		}
-		if (this.props.hasUsage) {
-			sections.push(this.makeUsageSection('deno run jsr:@your/module'))
-		}
-		if (this.props.hasAdvancedUsage) {
-			sections.push(this.makeAdvancedUsageSection(`import { YourModule } from "jsr:@your/module";\n\nnew YourModule.engage();`))
-		}
-
-		return sections.reduce((acc, section) => acc.concat(section), new DocumentSection('')).toString()
-	}
-
 	/** makes the title section of a README */
-	makeTitleSection(): DocumentSection {
-		const { projectName, projectDescription, badges = [] } = this.props
-
+	makeTitleSection(projectName: string, description: string, badges: DocumentBadge[] = []): DocumentSection {
 		const titleLine = `# ${projectName}`
-		const desc = projectDescription ?? ''
+		const desc = description ?? ''
 		const badgeLine = badges.map((b) => b.toMarkdown()).join('\n')
 
 		const content = [titleLine, badgeLine, desc]

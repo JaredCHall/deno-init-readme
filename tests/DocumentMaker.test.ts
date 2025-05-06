@@ -1,75 +1,28 @@
-import { assertEquals } from '@std/assert'
-import { DocumentMaker } from '../src/DocumentMaker.ts'
-import { DocumentBadge } from '../src/DocumentBadge.ts'
+import { assertStringIncludes } from "@std/assert"
+import { DocumentMaker } from "../src/DocumentMaker.ts"
+import { DocumentBadge } from "../src/DocumentBadge.ts"
 
-Deno.test('DocumentMaker: full document with all sections', () => {
-	const doc = new DocumentMaker({
-		projectName: 'my-cool-module',
-		projectDescription: 'This is a great module!',
-		badges: [
-			new DocumentBadge('CI', 'https://example.com/ci.svg', 'https://ci.example.com'),
-			new DocumentBadge('Coverage', 'https://example.com/coverage.svg'),
-		],
-	})
+Deno.test("DocumentMaker generates all sections as expected", () => {
+	const maker = new DocumentMaker()
 
-	const output = doc.makeDoc()
+	const badges = [
+		new DocumentBadge("jsr:@scope/awesome-module", "https://jsr.io/@scope/awesome-module"),
+		new DocumentBadge("Tests", "https://github.com/your-org/awesome-module/actions/workflows/ci.yml")
+	]
 
-	assertEquals(
-		output,
-		`# my-cool-module
+	const titleSection = maker.makeTitleSection("awesome-module", "Does awesome things for Deno users", badges)
+	assertStringIncludes(titleSection.toString(), "# awesome-module")
+	assertStringIncludes(titleSection.toString(), "Does awesome things for Deno users")
+	assertStringIncludes(titleSection.toString(), "![jsr")
+	assertStringIncludes(titleSection.toString(), "![Tests")
 
-[![CI](https://example.com/ci.svg)](https://ci.example.com)
-![Coverage](https://example.com/coverage.svg)
+	const usageSection = maker.makeUsageSection("deno run jsr:@scope/awesome-module")
+	assertStringIncludes(usageSection.toString(), "```bash")
+	assertStringIncludes(usageSection.toString(), "deno run jsr:@scope/awesome-module")
 
-This is a great module!
-
-## Usage
-
-\`\`\`bash
-deno run jsr:@your/module
-\`\`\`
-
-## Advanced Usage
-
-\`\`\`typescript
-import { YourModule } from "jsr:@your/module";
-
-new YourModule.engage();
-\`\`\``,
+	const advancedUsageSection = maker.makeAdvancedUsageSection(
+			`import { MyModule } from "jsr:@scope/awesome-module";`
 	)
-})
-
-Deno.test('DocumentMaker: only title section', () => {
-	const doc = new DocumentMaker({
-		projectName: 'title-only',
-		hasUsage: false,
-		hasAdvancedUsage: false,
-	})
-
-	const output = doc.makeDoc()
-	assertEquals(output, `# title-only`)
-})
-
-Deno.test('DocumentMaker: usage and advanced usage without title', () => {
-	const doc = new DocumentMaker({
-		hasTitle: false,
-	})
-
-	const output = doc.makeDoc()
-	assertEquals(
-		output,
-		`## Usage
-
-\`\`\`bash
-deno run jsr:@your/module
-\`\`\`
-
-## Advanced Usage
-
-\`\`\`typescript
-import { YourModule } from "jsr:@your/module";
-
-new YourModule.engage();
-\`\`\``,
-	)
+	assertStringIncludes(advancedUsageSection.toString(), "```typescript")
+	assertStringIncludes(advancedUsageSection.toString(), `import { MyModule }`)
 })

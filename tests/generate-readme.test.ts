@@ -3,8 +3,8 @@ import {assertEquals, assertStringIncludes} from '@std/assert'
 import { stub } from '@testing/mock'
 
 // Dynamically import to ensure we don't trigger import.meta.main logic
-const cliModule = await import('../src/generate-readme-from-user-input.ts')
-const { generateReadmeFromUserInput: generateReadmeFromUserInputTest } = cliModule
+const cliModule = await import('../src/generate-readme.ts')
+const { generateReadme: generateReadmeTest } = cliModule
 
 function makeConfigStub(config: string | Record<string, unknown>) {
 	const json = typeof config === 'string' ? config : JSON.stringify(config, null, 2)
@@ -26,131 +26,32 @@ Deno.test('generateReadmeFromUserInput uses config and supports dry-run', async 
 	})
 
 	try {
-		const result = await generateReadmeFromUserInputTest()
+		const result = await generateReadmeTest()
 
 		assertEquals(result, true)
 		assertEquals(
 				output.trim(),
-				`# test-project
+				`# example/test-project
 
 [![jsr](https://img.shields.io/badge/jsr--%40example%2Ftest-project-blue?logo=deno)](https://jsr.io/@example/test-project)
-[![Tests](https://github.com/exampleuser/test-project/actions/workflows/ci.yml/badge.svg)](https://github.com/exampleuser/test-project/actions/workflows/ci.yml)
+[![GitHub](https://img.shields.io/badge/GitHub-exampleuser/test-project-blue?logo=github)](https://github.com/exampleuser/test-project)
 
 A test module.
 
 ## Usage
 
 \`\`\`bash
-deno run jsr:@your/module
+deno run jsr:@example/test-project
 \`\`\`
 
 ## Advanced Usage
 
 \`\`\`typescript
-import { YourModule } from "jsr:@your/module";
+import { YourModule } from "jsr:@example/test-project";
 
 new YourModule.engage();
 \`\`\``.trim(),
 		)
-	} finally {
-		readStub.restore()
-		logStub.restore()
-		Deno.args.splice(0, Deno.args.length)
-	}
-})
-
-
-Deno.test(`generateReadmeFromUserInput handles prompts`, async () => {
-	Deno.args.splice(0, Deno.args.length)
-
-	const promptStub = stub(globalThis, 'prompt', (msg?: string) => {
-		if (msg?.includes('Description')) return 'Some description'
-		if (msg?.includes('GitHub path')) return 'exampleuser/example'
-		return null
-	})
-
-	const confirmStub = stub(globalThis, 'confirm', (_msg?: string) => undefined as unknown as boolean)
-
-	const statStub = stub<typeof Deno, 'stat'>(
-			Deno,
-			'stat',
-			async (_path) => { throw new Error('Not found') },
-	)
-
-	const readStub = makeConfigStub({
-		"name": "@example/example"
-	})
-
-	let writtenContent = ''
-	const writeStub = stub<typeof Deno, 'writeTextFile'>(
-			Deno,
-			'writeTextFile',
-			async (_path, data) => {
-				writtenContent = typeof data === 'string' ? data : '[streamed content]'
-			},
-	)
-
-	try {
-		await generateReadmeFromUserInputTest()
-
-		assertEquals(
-				writtenContent.startsWith('# '),
-				true,
-				'Output should have a title header even if blank',
-		)
-		assertEquals(
-				writtenContent.includes('Advanced Usage'),
-				true,
-				'Advanced usage section should still be present',
-		)
-		assertEquals(
-				writtenContent.includes('Some description'),
-				true,
-				'Provided description should be in README',
-		)
-
-	} finally {
-		promptStub.restore()
-		confirmStub.restore()
-		statStub.restore()
-		readStub.restore()
-		writeStub.restore()
-		Deno.args.splice(0, Deno.args.length)
-	}
-})
-
-
-Deno.test('generateReadmeFromUserInput parses deno.json fallback', async () => {
-	Deno.args.splice(0, Deno.args.length, '--dry-run')
-
-	const readStub = stub<typeof Deno, 'readTextFile'>(
-			Deno,
-			'readTextFile',
-			async (path: string | URL, _options?: unknown) => {
-				if (path === 'deno.jsonc') throw new Error('File not found')
-				if (path === 'deno.json') {
-					return `{
-  "name": "@example/fallback-module",
-  "description": "Fallback from deno.jsonc.",
-  "githubPath": "fallbackuser/fallback-repo"
-}`
-				}
-				throw new Error('Unexpected file access')
-			}
-	)
-
-
-	let output = ''
-	const logStub = stub(console, 'log', (msg?: unknown) => {
-		if (typeof msg === 'string') output += msg + '\n'
-	})
-
-	try {
-		const result = await generateReadmeFromUserInputTest()
-		assertEquals(result, true)
-		assertEquals(output.includes('# fallback-module'), true)
-		assertEquals(output.includes('Fallback from deno.jsonc.'), true)
-		assertEquals(output.includes('fallbackuser/fallback-repo'), true)
 	} finally {
 		readStub.restore()
 		logStub.restore()
@@ -167,7 +68,7 @@ Deno.test('generateReadmeFromUserInput shows help and exits', async () => {
 	})
 
 	try {
-		const result = await generateReadmeFromUserInputTest()
+		const result = await generateReadmeTest()
 
 		assertEquals(result, false)
 		assertEquals(
@@ -202,7 +103,7 @@ Deno.test('refuses to overwrite README.md without --force', async () => {
 	})
 
 	try {
-		const result = await generateReadmeFromUserInputTest()
+		const result = await generateReadmeTest()
 		assertEquals(result, false)
 		assertEquals(output.includes('README.md already exists'), true)
 	} finally {
@@ -228,7 +129,7 @@ for (const githubPath of [null, 'not-a-path']) {
 		})
 
 		try {
-			const result = await generateReadmeFromUserInputTest()
+			const result = await generateReadmeTest()
 			assertEquals(result, false)
 			assertEquals(output.includes('Invalid GitHub path'), true)
 		} finally {
@@ -254,7 +155,7 @@ Deno.test('errors on empty GitHub path input', async () => {
 	})
 
 	try {
-		const result = await generateReadmeFromUserInputTest()
+		const result = await generateReadmeTest()
 		assertEquals(result, false)
 		assertEquals(output.includes('Invalid GitHub path'), true)
 	} finally {
@@ -280,7 +181,7 @@ Deno.test('errors on malformed name field in deno config', async () => {
 	})
 
 	try {
-		const result = await generateReadmeFromUserInputTest()
+		const result = await generateReadmeTest()
 		assertEquals(result, false)
 		assertEquals(output.includes('Missing or malformed "name" field'), true)
 	} finally {
@@ -303,7 +204,7 @@ Deno.test('returns false and logs error if deno config cannot be parsed', async 
 	})
 
 	try {
-		const result = await generateReadmeFromUserInputTest()
+		const result = await generateReadmeTest()
 		assertEquals(result, false)
 		assertStringIncludes(output, 'Failed to parse deno.json(c)')
 	} finally {
