@@ -1,3 +1,20 @@
+## [1.0.0] - 2025-05-05
+
+🎉 First stable release!
+
+- Full CLI support with:
+  - Interactive prompts
+  - `--dry-run`, `--force`, and `--help` flags
+- Reads project metadata from `deno.json(c)`
+- Validates and extracts:
+  - `name` (JSR scope/module)
+  - `description`
+  - `githubPath` for CI badge
+- Smart fallback prompts for missing fields
+- Generates consistent, badge-rich README scaffold
+- 100% test coverage and type safety
+- Can be used as a module (`DocumentMaker` class)
+
 ## [0.0.2] - 2025-05-05
 
 - Improve CI/CD workflow
