@@ -50,13 +50,21 @@ Options:
 You can also use this module to generate README content directly:
 
 ```ts
-import { DocumentMaker } from "jsr:@jaredhall/init-readme";
+import { DocumentMaker, DocumentBadge } from "jsr:@jaredhall/init-readme";
 
-const doc = new DocumentMaker({
-  projectName: "my-module",
-  projectDescription: "Does something cool.",
-});
-console.log(doc.makeDoc());
+const maker = new DocumentMaker();
+
+const badges = [
+  new DocumentBadge("Example", "https://img.shields.io/badge/example-blue", "https://example.com")
+];
+
+const markdown = [
+  maker.makeTitleSection("awesome-module", "Does something cool.", badges),
+  maker.makeUsageSection("deno run jsr:@scope/awesome-module"),
+  maker.makeAdvancedUsageSection(`import { MyModule } from "jsr:@scope/awesome-module";`)
+].map(section => section.toString()).join("\n\n");
+
+console.log(markdown);
 ```
 
 ## 📦 Requirements

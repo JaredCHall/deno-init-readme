@@ -1,6 +1,11 @@
+// Core components
+export { generateReadmeMarkdown } from "./src/core.ts";
 export { DocumentSection } from "./src/DocumentSection.ts";
 export { DocumentBadge } from "./src/DocumentBadge.ts";
 export { DocumentMaker } from "./src/DocumentMaker.ts";
+
+// CLI / programmatic APIs
+export { generateReadme } from "./src/generate-readme.ts";
 
 // CLI entry point
 if (import.meta.main) {
