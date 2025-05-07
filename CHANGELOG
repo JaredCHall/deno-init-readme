@@ -1,3 +1,19 @@
+## [1.1.0] - 2025-05-06
+
+🧪 Full Test Coverage + Refactors for Testability
+
+- Achieved **100% branch and line coverage** across the entire project
+- Refactored `DocumentMaker` to remove internal state; all methods now accept arguments explicitly
+- Moved config parsing and validation logic to `helper.ts`
+- Extracted reusable utilities: `makeModuleSettings`, `makeBadges`, `fileExists`, `parseDenoConfig`
+- Simplified testing:
+  - Eliminated need for brittle `console.error` stubs
+  - Replaced `assertThrows` with `assertRejects` for async error paths
+  - Directly tested edge cases like missing config fields, fallback reads, and forced writes
+- Identified plan to extract pure logic (`generateReadmeMarkdown`) into `core.ts` to isolate formatting logic
+
+This release streamlines testability and sets the foundation for future modular enhancements.
+
 ## [1.0.0] - 2025-05-05
 
 🎉 First stable release!
