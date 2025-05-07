@@ -1,5 +1,5 @@
 // deno-lint-ignore-file require-await
-import {assertEquals, assertRejects, assertStringIncludes, assertThrows} from '@std/assert'
+import { assertEquals, assertRejects, assertStringIncludes } from '@std/assert'
 import { stub } from '@testing/mock'
 
 // Dynamically import to ensure we don't trigger import.meta.main logic
@@ -15,9 +15,9 @@ Deno.test('generateReadmeFromUserInput uses config and supports dry-run', async 
 	Deno.args.splice(0, Deno.args.length, '--dry-run')
 
 	const readStub = makeConfigStub({
-		"name": "@example/test-project",
-		"description": "A test module.",
-		"githubPath": "exampleuser/test-project"
+		'name': '@example/test-project',
+		'description': 'A test module.',
+		'githubPath': 'exampleuser/test-project',
 	})
 
 	let output = ''
@@ -30,8 +30,8 @@ Deno.test('generateReadmeFromUserInput uses config and supports dry-run', async 
 
 		assertEquals(result, true)
 		assertEquals(
-				output.trim(),
-				`# example/test-project
+			output.trim(),
+			`# example/test-project
 
 [![jsr](https://img.shields.io/badge/jsr--%40example%2Ftest-project-blue?logo=deno)](https://jsr.io/@example/test-project)
 [![GitHub](https://img.shields.io/badge/GitHub-exampleuser/test-project-blue?logo=github)](https://github.com/exampleuser/test-project)
@@ -72,14 +72,14 @@ Deno.test('generateReadmeFromUserInput shows help and exits', async () => {
 
 		assertEquals(result, false)
 		assertEquals(
-				output.includes('Usage:'),
-				true,
-				'Should include usage instructions'
+			output.includes('Usage:'),
+			true,
+			'Should include usage instructions',
 		)
 		assertEquals(
-				output.includes('--help'),
-				true,
-				'Should list help flag'
+			output.includes('--help'),
+			true,
+			'Should list help flag',
 		)
 	} finally {
 		logStub.restore()
@@ -91,9 +91,9 @@ Deno.test('refuses to overwrite README.md without --force', async () => {
 	Deno.args.splice(0, Deno.args.length) // no flags
 
 	const readStub = makeConfigStub({
-		"name": "@example/blocked-write",
-		"description": "Test",
-		"githubPath": "user/repo"
+		'name': '@example/blocked-write',
+		'description': 'Test',
+		'githubPath': 'user/repo',
 	})
 	const statStub = stub(Deno, 'stat', async () => ({ isFile: true } as Deno.FileInfo))
 
@@ -105,25 +105,26 @@ Deno.test('refuses to overwrite README.md without --force', async () => {
 })
 
 Deno.test('generateReadme writes to README.md when --force is passed', async () => {
-	Deno.args.splice(0, Deno.args.length, "--force")
+	Deno.args.splice(0, Deno.args.length, '--force')
 
-	const statStub = stub(Deno, "stat", async () => ({ isFile: true } as Deno.FileInfo))
-	const readStub = stub(Deno, "readTextFile", async () => `{
+	const statStub = stub(Deno, 'stat', async () => ({ isFile: true } as Deno.FileInfo))
+	const readStub = stub(Deno, 'readTextFile', async () =>
+		`{
   "name": "@force/write",
   "description": "A forced write test",
   "githubPath": "user/repo"
 }`)
 
-	let written = ""
-	const writeStub = stub(Deno, "writeTextFile", async (_path, data) => {
+	let written = ''
+	const writeStub = stub(Deno, 'writeTextFile', async (_path, data) => {
 		written = String(data)
 	})
 
 	try {
 		const result = await generateReadmeTest()
 		assertEquals(result, true)
-		assertStringIncludes(written, "# force/write")
-		assertStringIncludes(written, "forced write test")
+		assertStringIncludes(written, '# force/write')
+		assertStringIncludes(written, 'forced write test')
 	} finally {
 		statStub.restore()
 		readStub.restore()

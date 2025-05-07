@@ -1,5 +1,5 @@
-import { makeBadges, makeModuleSettings, parseDenoConfig, fileExists } from './helpers.ts'
-import { generateReadmeMarkdown } from "./core.ts";
+import { fileExists, makeBadges, makeModuleSettings, parseDenoConfig } from './helpers.ts'
+import { generateReadmeMarkdown } from './core.ts'
 
 const USAGE = `Usage:
   deno run --allow-read[ --allow-write] mod.ts [options]
@@ -12,7 +12,6 @@ Options:
   --dry-run         Print the README.md to stdout instead of writing to disk
   --force           Overwrite README.md if it already exists
   --help            Show this help message`
-
 
 /** Generates a README.md file from user input */
 export async function generateReadme(): Promise<boolean> {
@@ -36,7 +35,7 @@ export async function generateReadme(): Promise<boolean> {
 		return true
 	}
 
-	if(await fileExists('README.md') && !force){
+	if (await fileExists('README.md') && !force) {
 		throw new Error('README.md already exists. Use --force to overwrite.')
 	}
 
