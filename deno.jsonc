@@ -6,7 +6,7 @@
   "githubPath": "jaredchall/deno-init-readme",
   "tasks": {
     "make:readme": "deno run --allow-write --allow-read ./mod.ts",
-    "test": "deno test --allow-read --allow-write",
+    "test": "deno test",
     "check": "deno fmt && deno lint && deno task test"
   },
   "imports": {
