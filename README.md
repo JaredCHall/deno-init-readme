@@ -15,7 +15,7 @@ Run the CLI to generate a `README.md`:
 deno run --allow-read --allow-write jsr:@jaredhall/init-readme
 ```
 
-If your `deno.json` or `deno.jsonc` includes the following fields:
+If your deno.json or deno.jsonc contains the following fields, the CLI will use them automatically:
 
 ```jsonc
 {
@@ -24,8 +24,7 @@ If your `deno.json` or `deno.jsonc` includes the following fields:
   "githubPath": "youruser/yourrepo"
 }
 ```
-
-…the CLI will use them automatically. Otherwise, you'll be prompted to provide missing fields interactively.
+- `name` is required. See [📦 Requirements](#-requirements) for details.
 
 ### Command Help
 
