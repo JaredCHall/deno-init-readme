@@ -1,5 +1,6 @@
-import { fileExists, makeBadges, makeModuleSettings, parseDenoConfig } from './helpers.ts'
+import { makeBadges, makeModuleSettings, parseDenoConfig } from './helpers.ts'
 import { generateReadmeMarkdown } from './core.ts'
+import { exists } from '@std/fs/exists'
 
 const USAGE = `Usage:
   deno run --allow-read[ --allow-write] mod.ts [options]
@@ -35,7 +36,7 @@ export async function generateReadme(): Promise<boolean> {
 		return true
 	}
 
-	if (await fileExists('README.md') && !force) {
+	if (await exists('README.md') && !force) {
 		throw new Error('README.md already exists. Use --force to overwrite.')
 	}
 

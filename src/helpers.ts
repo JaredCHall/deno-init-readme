@@ -70,12 +70,3 @@ export async function parseDenoConfig(): Promise<Record<string, unknown>> {
 		throw new Error('Failed to read deno.json(c).')
 	}
 }
-
-export async function fileExists(path: string): Promise<boolean> {
-	try {
-		await Deno.stat(path)
-		return true
-	} catch {
-		return false
-	}
-}

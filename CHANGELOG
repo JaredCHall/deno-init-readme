@@ -1,3 +1,10 @@
+## [1.1.2] - 2025-05-07
+
+### Changed
+- Replaced custom `fileExists()` helper with standard `@std/fs/exists` for improved reliability and edge-case coverage.
+- Removed internal error handling logic for file existence checks; trusted Deno Standard Library instead.
+- Maintained 100% test coverage across all branches and lines. 🎯
+
 ## [1.1.1] - 2025-05-06
 
 - Fix README CLI example

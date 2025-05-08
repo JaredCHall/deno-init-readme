@@ -1,6 +1,6 @@
 {
   "name": "@jaredhall/init-readme",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "exports": "./mod.ts",
   "description": "Scaffolds a `README.md` file for new Deno modules",
   "githubPath": "jaredchall/deno-init-readme",
@@ -12,7 +12,8 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
     "@testing/mock": "jsr:@std/testing@1/mock",
-    "@std/jsonc": "jsr:@std/jsonc@1"
+    "@std/jsonc": "jsr:@std/jsonc@1",
+    "@std/fs": "jsr:@std/fs@1"
   },
   "fmt": {
     "useTabs": true,

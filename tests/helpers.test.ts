@@ -1,5 +1,5 @@
 // deno-lint-ignore-file require-await
-import { fileExists, makeBadges, makeModuleSettings, parseDenoConfig } from '../src/helpers.ts'
+import { makeBadges, makeModuleSettings, parseDenoConfig } from '../src/helpers.ts'
 import { assertArrayIncludes, assertEquals, assertRejects, assertThrows } from '@std/assert'
 import { stub } from '@testing/mock'
 
@@ -56,28 +56,6 @@ Deno.test('makeBadges returns only jsr badge when GitHub info is absent', () => 
 		badges[0],
 		`[![jsr](https://img.shields.io/badge/jsr--%40org%2Flib-blue?logo=deno)](https://jsr.io/@org/lib)`,
 	)
-})
-
-Deno.test('fileExists returns true if file exists', async () => {
-	const statStub = stub(Deno, 'stat', async () => ({ isFile: true } as Deno.FileInfo))
-	try {
-		const result = await fileExists('README.md')
-		assertEquals(result, true)
-	} finally {
-		statStub.restore()
-	}
-})
-
-Deno.test('fileExists returns false if file does not exist', async () => {
-	const statStub = stub(Deno, 'stat', async () => {
-		throw new Error('Not found')
-	})
-	try {
-		const result = await fileExists('README.md')
-		assertEquals(result, false)
-	} finally {
-		statStub.restore()
-	}
 })
 
 Deno.test('parseDenoConfig falls back to deno.json if deno.jsonc is missing', async () => {
