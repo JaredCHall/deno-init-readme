@@ -1,5 +1,5 @@
 import { DocumentMaker } from './DocumentMaker.ts'
-import type { ModuleSettings } from './helpers.ts'
+import type { ModuleSettings } from './types.ts'
 import type { DocumentBadge } from './DocumentBadge.ts'
 
 export function generateReadmeMarkdown(

@@ -1,7 +1,7 @@
 // deno-lint-ignore-file require-await
 import { makeBadges, makeModuleSettings, parseDenoConfig } from '../src/helpers.ts'
 import { assertArrayIncludes, assertEquals, assertRejects, assertThrows } from '@std/assert'
-import { stub } from '@testing/mock'
+import {CommandError} from "../src/errors.ts";
 
 Deno.test('makeModuleSettings throws on malformed name', () => {
 	assertThrows(
@@ -59,34 +59,20 @@ Deno.test('makeBadges returns only jsr badge when GitHub info is absent', () => 
 })
 
 Deno.test('parseDenoConfig falls back to deno.json if deno.jsonc is missing', async () => {
-	const stubReadTextFile = stub<typeof Deno, 'readTextFile'>(
-		Deno,
-		'readTextFile',
-		async (path: string | URL) => {
-			if (path === 'deno.jsonc') throw new Error('no jsonc')
-			if (path === 'deno.json') return `{"name": "@fallback/module"}`
-			throw new Error('Unexpected file path')
-		},
-	)
-
-	try {
-		const config = await parseDenoConfig()
-		assertEquals(config.name, '@fallback/module')
-	} finally {
-		stubReadTextFile.restore()
+	const mockReadFn: typeof Deno.readTextFile = async (path: string | URL): Promise<string> => {
+		if (path === 'deno.jsonc') throw new Error('no jsonc')
+		if (path === 'deno.json') return `{"name": "@fallback/module"}`
+		throw new Error('Unexpected file path')
 	}
+
+	const config = await parseDenoConfig(mockReadFn)
+	assertEquals(config.name, '@fallback/module')
 })
 
 Deno.test('parseDenoConfig throws if deno.json and deno.jsonc are missing', async () => {
-	const stubReadTextFile = stub<typeof Deno, 'readTextFile'>(
-		Deno,
-		'readTextFile',
-		async (_path: string | URL) => {
-			throw new Error('no jsonc')
-		},
-	)
+	const mockReadFn: typeof Deno.readTextFile = async (): Promise<string> => {
+		throw new Error('no jsonc')
+	}
 
-	await assertRejects(() => parseDenoConfig(), Error, 'Failed to read deno.json(c).')
-
-	stubReadTextFile.restore()
+	await assertRejects(() => parseDenoConfig(mockReadFn), CommandError, 'Failed to read deno.json(c).')
 })

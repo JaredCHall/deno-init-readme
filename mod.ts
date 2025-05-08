@@ -1,4 +1,5 @@
 // Core components
+export type { ModuleSettings } from "./src/types.ts";
 export { generateReadmeMarkdown } from "./src/core.ts";
 export { DocumentSection } from "./src/DocumentSection.ts";
 export { DocumentBadge } from "./src/DocumentBadge.ts";

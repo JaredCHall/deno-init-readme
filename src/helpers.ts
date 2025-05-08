@@ -1,15 +1,7 @@
 import { DocumentBadge } from './DocumentBadge.ts'
+import {CommandError} from "./errors.ts";
 import { parse } from '@std/jsonc'
-
-export interface ModuleSettings {
-	name: string
-	jsrScope: string
-	jsrModule: string
-	description?: string
-	githubPath?: string
-	githubRepo?: string
-	githubUser?: string
-}
+import type {ModuleSettings} from "./types.ts";
 
 export function makeModuleSettings(config: Record<string, unknown>): ModuleSettings {
 	if (typeof config.name !== 'string' || !config.name.startsWith('@')) {
@@ -61,12 +53,12 @@ export function makeBadges(settings: ModuleSettings): DocumentBadge[] {
 	return badges
 }
 
-export async function parseDenoConfig(): Promise<Record<string, unknown>> {
+export async function parseDenoConfig(readFn: typeof Deno.readTextFile = Deno.readTextFile): Promise<Record<string, unknown>> {
 	try {
-		const text = await Deno.readTextFile('deno.jsonc')
-			.catch(() => Deno.readTextFile('deno.json'))
+		const text = await readFn('deno.jsonc')
+			.catch(() => readFn('deno.json'))
 		return parse(text) as Record<string, unknown>
 	} catch {
-		throw new Error('Failed to read deno.json(c).')
+		throw new CommandError('Failed to read deno.json(c).')
 	}
 }

@@ -1,6 +1,7 @@
 import { makeBadges, makeModuleSettings, parseDenoConfig } from './helpers.ts'
 import { generateReadmeMarkdown } from './core.ts'
 import { exists } from '@std/fs/exists'
+import {CommandError} from "./errors.ts";
 
 const USAGE = `Usage:
   deno run --allow-read[ --allow-write] mod.ts [options]
@@ -14,32 +15,48 @@ Options:
   --force           Overwrite README.md if it already exists
   --help            Show this help message`
 
+
+interface Injects {
+	readFileFn: typeof Deno.readTextFile
+	writeFileFn: typeof Deno.writeTextFile
+	logFn: typeof console.log
+	existsFn: typeof exists
+	args: typeof Deno.args
+}
+
+
 /** Generates a README.md file from user input */
-export async function generateReadme(): Promise<boolean> {
-	const args = new Set(Deno.args)
+export async function generateReadme(injects: Injects = {
+	readFileFn: Deno.readTextFile,
+	writeFileFn: Deno.writeTextFile,
+	logFn: console.log,
+	existsFn: exists,
+	args: Deno.args,
+}): Promise<boolean> {
+	const args = new Set(injects.args)
 	const dryRun = args.has('--dry-run')
 	const force = args.has('--force')
 	const help = args.has('--help')
 
 	if (help) {
-		console.log(USAGE)
+		injects.logFn(USAGE)
 		return false
 	}
 
-	const config = await parseDenoConfig()
+	const config = await parseDenoConfig(injects.readFileFn)
 	const settings = makeModuleSettings(config)
 	const badges = makeBadges(settings)
 	const markdown = generateReadmeMarkdown(settings, badges)
 
 	if (dryRun) {
-		console.log(markdown)
+		injects.logFn(markdown)
 		return true
 	}
 
-	if (await exists('README.md') && !force) {
-		throw new Error('README.md already exists. Use --force to overwrite.')
+	if (await injects.existsFn('README.md') && !force) {
+		throw new CommandError('README.md already exists. Use --force to overwrite.')
 	}
 
-	await Deno.writeTextFile('README.md', markdown)
+	await injects.writeFileFn('README.md', markdown)
 	return true
 }
