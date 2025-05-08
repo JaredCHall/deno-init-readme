@@ -1,3 +1,16 @@
+## [1.1.3] - 2025-05-07
+
+### Changed
+- Refactored test suite to use **pure dependency injection**, removing reliance on global stubs or mocks.
+  - All tests now inject `readFileFn`, `writeFileFn`, `logFn`, and `existsFn` directly into `generateReadme()`, improving clarity and test isolation.
+  - Verified flows include: `--dry-run`, `--help`, refusal to overwrite without `--force`, and successful forced writes.
+
+### Added
+- Introduced `CommandError` in new `errors.ts` module.
+  - Thrown in expected failure states such as refusing to overwrite an existing `README.md` without the `--force` flag.
+- Exported `ModuleSettings` type for use in external documentation and improved JSR module API clarity.
+
+
 ## [1.1.2] - 2025-05-07
 
 ### Changed
